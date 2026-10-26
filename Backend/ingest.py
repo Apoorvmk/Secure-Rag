@@ -1,72 +1,39 @@
-from sentence_transformers import SentenceTransformer
-from qdrant_client import QdrantClient
-from qdrant_client.models import PointStruct
-from dotenv import load_dotenv
+"""Ingest the repository's existing OKF Markdown files into Qdrant."""
+
 import os
-import uuid
-import yaml
 from pathlib import Path
 
-load_dotenv()
+from dotenv import load_dotenv
+from qdrant_client import QdrantClient
+from qdrant_client.models import Distance, PayloadSchemaType, VectorParams
 
-qdrant = QdrantClient(
-    url=os.getenv("QDRANT_URL"),
-    api_key=os.getenv("QDRANT_API_KEY")
-)
+from document_pipeline import COLLECTION_NAME, EMBEDDING_MODEL_NAME, ingest_markdown
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
-
-OKF_DIR = Path(__file__).resolve().parent.parent / "documents" / "okf"
-
-CHUNK_SIZE = 500
+BACKEND_DIR = Path(__file__).resolve().parent
+OKF_DIR = BACKEND_DIR.parent / "documents" / "okf"
 
 
-for file_path in OKF_DIR.glob("*.md"):
+def main():
+    load_dotenv(BACKEND_DIR / ".env")
+    url, key = os.getenv("QDRANT_URL"), os.getenv("QDRANT_API_KEY")
+    if not url or not key:
+        raise RuntimeError("Set QDRANT_URL and QDRANT_API_KEY in Backend/.env")
+    qdrant = QdrantClient(url=url, api_key=key)
+    if not qdrant.collection_exists(COLLECTION_NAME):
+        qdrant.create_collection(collection_name=COLLECTION_NAME,
+            vectors_config=VectorParams(size=384, distance=Distance.COSINE))
+    qdrant.create_payload_index(collection_name=COLLECTION_NAME, field_name="access_level",
+                                field_schema=PayloadSchemaType.KEYWORD)
+    qdrant.create_payload_index(collection_name=COLLECTION_NAME, field_name="document_id",
+                                field_schema=PayloadSchemaType.KEYWORD)
+    from sentence_transformers import SentenceTransformer
+    model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+    for file_path in sorted(OKF_DIR.glob("*.md")):
+        if file_path.name == "index.md":
+            continue
+        count = ingest_markdown(file_path.read_text(encoding="utf-8"), qdrant=qdrant, model=model)
+        print(f"{file_path.name}: indexed {count} chunks")
 
-    if file_path.name == "index.md":
-        continue
 
-    with open(file_path, "r", encoding="utf-8") as file:
-        content = file.read()
-
-    # Read YAML frontmatter
-    parts = content.split("---", 2)
-
-    metadata = yaml.safe_load(parts[1])
-    text = parts[2].strip()
-
-    # Split into chunks
-    chunks = [
-        text[i:i + CHUNK_SIZE]
-        for i in range(0, len(text), CHUNK_SIZE)
-    ]
-
-    embeddings = model.encode(chunks)
-
-    points = []
-
-    for chunk, embedding in zip(chunks, embeddings):
-
-        points.append(
-            PointStruct(
-                id=str(uuid.uuid4()),
-                vector=embedding.tolist(),
-                payload={
-                    "text": chunk,
-                    "access_level": metadata["access_level"],
-                    "title": metadata["title"],
-                    "source": metadata["source"]
-                }
-            )
-        )
-
-    qdrant.upsert(
-        collection_name="company_documents",
-        points=points
-    )
-
-    print(
-        f"{file_path.name}: "
-        f"uploaded {len(chunks)} chunks "
-        f"(access: {metadata['access_level']})"
-    )
+if __name__ == "__main__":
+    main()

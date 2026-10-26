@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f0e7">
+  <title>Northstar | Company workspace</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="wordmark" href="#home" data-view="home" aria-label="Northstar home">
+      <span class="brand-mark" aria-hidden="true">N</span>
+      <span>northstar<span class="brand-period">.</span></span>
+      <span class="brand-caption">COMPANY WORKSPACE</span>
+    </a>
+    <nav class="public-nav" id="public-nav" aria-label="Main navigation">
+      <a href="#about">About</a>
+      <a href="#access">Access</a>
+      <button class="button button-dark button-small" data-view="login">Log in <span aria-hidden="true">↗</span></button>
+    </nav>
+    <nav class="private-nav hidden" id="private-nav" aria-label="Workspace navigation">
+      <button class="nav-tab active" data-view="chat">Assistant</button>
+      <button class="nav-tab" data-view="bunker">Bunker</button>
+      <span class="nav-divider"></span>
+      <span class="user-pill"><span class="user-dot"></span><span id="user-label">Team member</span></span>
+      <button class="button button-quiet button-small" id="logout-button">Log out</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="view home-view" id="home-view">
+      <div class="hero-wrap">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="eyebrow-line"></span> THE NORTHSTAR COMPANY PORTAL</div>
+          <h1>Good work<br>starts <span>together.</span></h1>
+          <p class="hero-lede">A considered space for the people, knowledge, and decisions that move our company forward.</p>
+          <div class="hero-actions">
+            <button class="button button-dark" data-view="login">Enter the workspace <span aria-hidden="true">↗</span></button>
+            <a class="text-link" href="#about">A little about us <span aria-hidden="true">↓</span></a>
+          </div>
+          <div class="hero-meta"><span class="live-mark"></span> INTERNAL ACCESS <span class="meta-separator">/</span> NORTHSTAR TEAM</div>
+        </div>
+        <aside class="hero-card" aria-label="Company note">
+          <div class="card-topline"><span>FIELD NOTE 001</span><span>2025 — 26</span></div>
+          <div class="orbit-art" aria-hidden="true">
+            <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div>
+            <span class="orbit-core"></span><span class="orbit-label orbit-label-a">PEOPLE</span><span class="orbit-label orbit-label-b">IDEAS</span><span class="orbit-label orbit-label-c">IMPACT</span>
+          </div>
+          <div class="card-note">
+            <span class="note-index">01 / 03</span>
+            <div><strong>Make the useful<br>things matter.</strong><p>Our best work is thoughtful, shared, and built to last.</p></div>
+            <span class="note-arrow" aria-hidden="true">↗</span>
+          </div>
+        </aside>
+      </div>
+
+      <div class="ticker" aria-label="Company principles">
+        <span>THOUGHTFUL BY DESIGN</span><i>✳</i><span>BUILT TOGETHER</span><i>✳</i><span>HERE FOR THE LONG TERM</span><i>✳</i><span>THOUGHTFUL BY DESIGN</span>
+      </div>
+
+      <section class="about-section" id="about">
+        <div class="section-kicker">01 — WHO WE ARE</div>
+        <div class="about-content">
+          <h2>A company with<br><span>room to think.</span></h2>
+          <div class="about-body"><p>Northstar brings curious people together to solve meaningful problems. We value clear thinking, honest collaboration, and the care it takes to make something dependable.</p><p>This workspace keeps our shared knowledge close and gives every team member a clear way to find the information they need.</p><button class="text-link" data-view="login">Meet us inside <span aria-hidden="true">↗</span></button></div>
+        </div>
+      </section>
+
+      <section class="access-section" id="access">
+        <div class="section-kicker">02 — HOW ACCESS WORKS</div>
+        <div class="access-heading"><h2>Clear by default.</h2><p>Company documents are shared according to your role. Access is assigned by the company and applied automatically.</p></div>
+        <div class="role-grid">
+          <article class="role-card"><span class="role-number">01</span><div><h3>Intern</h3><p>Intern materials</p></div><span class="role-mark">I</span></article>
+          <article class="role-card"><span class="role-number">02</span><div><h3>Employee</h3><p>Intern + employee</p></div><span class="role-mark">E</span></article>
+          <article class="role-card"><span class="role-number">03</span><div><h3>Manager</h3><p>Through manager</p></div><span class="role-mark">M</span></article>
+          <article class="role-card"><span class="role-number">04</span><div><h3>Board</h3><p>All company levels</p></div><span class="role-mark">B</span></article>
+        </div>
+      </section>
+      <footer class="site-footer"><span>© NORTHSTAR COMPANY</span><span>BUILT ON TRUST & CLEAR ACCESS</span><button class="footer-login" data-view="login">Team log in ↗</button></footer>
+    </section>
+
+    <section class="view login-view hidden" id="login-view">
+      <div class="login-aside"><span class="eyebrow"><span class="eyebrow-line"></span> PRIVATE COMPANY SPACE</span><h1>Your work,<br>in one place.</h1><p>Sign in with your company account to continue.</p><div class="login-aside-foot"><span class="live-mark"></span> ACCESS IS SET BY YOUR COMPANY ROLE</div></div>
+      <div class="login-panel">
+        <div class="section-kicker">TEAM ACCESS</div><h2>Welcome back.</h2><p class="muted">Use your company email and password.</p>
+        <form id="login-form" class="form-stack">
+          <label for="email">Company email</label><input id="email" name="email" type="email" autocomplete="username" placeholder="you@company.com" required>
+          <label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required>
+          <button class="button button-dark button-wide" type="submit">Log in <span aria-hidden="true">↗</span></button>
+          <p class="form-message" id="login-message" role="status"></p>
+        </form>
+        <p class="login-note">No account creation here. Your access level is assigned by your administrator.</p>
+        <button class="text-link back-link" data-view="home">← Back to company home</button>
+      </div>
+    </section>
+
+    <section class="view workspace-view hidden" id="chat-view">
+      <div class="workspace-heading"><div><div class="section-kicker">NORTHSTAR KNOWLEDGE</div><h1>Ask <span>Scout.</span></h1><p>Your company knowledge, gathered in one place.</p></div><div class="workspace-tag"><span class="live-mark"></span> ROLE FILTER ACTIVE</div></div>
+      <div class="chat-layout">
+        <aside class="chat-rail"><div class="rail-title">YOUR WORKSPACE</div><button class="rail-item selected" data-view="chat"><span class="rail-icon">✳</span> Ask Scout</button><button class="rail-item" data-view="bunker"><span class="rail-icon">▤</span> Bunker</button><div class="rail-rule"></div><div class="rail-title">TRY ASKING</div><button class="suggestion" data-prompt="What are the key company policies I should know?">Key company policies <span>↗</span></button><button class="suggestion" data-prompt="Summarize the leave policy for my role.">Leave policy <span>↗</span></button><button class="suggestion" data-prompt="What guidance is available for my team?">Team guidance <span>↗</span></button><div class="rail-foot"><span class="live-mark"></span><span>Answers use documents<br>available to your role.</span></div></aside>
+        <section class="chat-panel" aria-label="Scout chat">
+          <div class="chat-top"><div class="scout-avatar">S</div><div><strong>Scout</strong><span>Northstar knowledge assistant</span></div><span class="chat-secure">PRIVATE SESSION <i></i></span></div>
+          <div class="messages" id="messages" aria-live="polite"><div class="welcome-message"><span class="welcome-mark">S</span><div class="message-meta">SCOUT <span>JUST NOW</span></div><p>Good to see you. Ask me about company policies, guidance, or shared knowledge. I’ll only use documents available to your role.</p></div></div>
+          <form id="chat-form" class="chat-composer"><textarea id="chat-input" rows="1" maxlength="2000" placeholder="Ask something about the company…" aria-label="Your question"></textarea><button type="submit" class="send-button" aria-label="Send message">↑</button><div class="composer-hint">SCOUT USES ROLE-APPROVED DOCUMENTS <span>ENTER TO SEND</span></div></form>
+        </section>
+      </div>
+    </section>
+
+    <section class="view workspace-view hidden" id="bunker-view">
+      <div class="workspace-heading bunker-heading"><div><div class="section-kicker">COMPANY DOCUMENTS</div><h1>The <span>Bunker.</span></h1><p>One clear home for the things our teams need to know.</p></div><div class="workspace-tag"><span id="bunker-role">YOUR ACCESS</span></div></div>
+      <div class="bunker-layout">
+        <section class="bunker-main">
+          <div class="bunker-tools"><div><span class="section-kicker">DOCUMENT LIBRARY</span><h2>Shared files <span id="document-count">—</span></h2></div><button class="button button-dark button-small" id="refresh-documents">Refresh list ↻</button></div>
+          <div id="document-list" class="document-list"><div class="empty-state">Loading the company library…</div></div>
+        </section>
+        <aside class="bunker-sidebar">
+          <div class="upload-box"><div class="section-kicker">ADD TO THE BUNKER</div><h2>Share something useful.</h2><p>PDFs and text files can be searched by Scout. Images and videos are stored for your team.</p>
+            <form id="upload-form" class="form-stack">
+              <label class="file-drop" for="file-input"><span class="drop-icon">＋</span><strong>Choose files</strong><small>PDF, TXT, MD, images, MP4, MOV, WebM</small><small>20 MiB per file · video files up to 100 MiB</small><input id="file-input" type="file" multiple accept=".pdf,.txt,.md,.png,.jpg,.jpeg,.gif,.webp,.mp4,.mov,.webm"></label>
+              <div id="selected-files" class="selected-files"></div>
+              <label for="access-level">Who can read this?</label><select id="access-level" required></select>
+              <p class="access-explainer" id="access-explainer"></p>
+              <button class="button button-dark button-wide" type="submit">Upload files <span aria-hidden="true">↗</span></button>
+              <p class="form-message" id="upload-message" role="status"></p>
+            </form>
+          </div>
+          <div class="notice-box"><div class="section-kicker">QUICK NOTICE</div><h2>Write it here.</h2><p>Create a searchable text notice without leaving the page.</p>
+            <form id="note-form" class="form-stack">
+              <label for="note-title">Notice title</label><input id="note-title" maxlength="120" placeholder="e.g. Friday office hours" required>
+              <label for="note-text">Notice</label><textarea id="note-text" rows="4" maxlength="100000" placeholder="Write a short update for your team…" required></textarea>
+              <label for="note-access">Who can read it?</label><select id="note-access" required></select>
+              <p class="access-explainer" id="note-access-explainer"></p>
+              <button class="button button-outline button-wide" type="submit">Publish notice ↗</button>
+              <p class="form-message" id="note-message" role="status"></p>
+            </form>
+          </div>
+          <p class="bunker-footnote">Access is enforced by the server. A file’s label controls who can open it and, for text, what Scout can find.</p>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="/assets/app.js" defer></script>
+</body>
+</html>

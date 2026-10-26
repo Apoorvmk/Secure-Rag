@@ -1,2 +1,5 @@
-venv
+venv/
 Backend/.env
+Backend/uploads/
+**/__pycache__/
+*.py[cod]

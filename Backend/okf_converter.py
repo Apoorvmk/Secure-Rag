@@ -1,5 +1,7 @@
-import pymupdf
 from pathlib import Path
+import yaml
+
+from document_pipeline import pdf_to_text
 
 DOCUMENTS_DIR = Path(__file__).resolve().parent.parent / "documents"
 OKF_DIR = DOCUMENTS_DIR / "okf"
@@ -29,13 +31,7 @@ DOCUMENTS = {
 
 
 def extract_text(pdf_path):
-    text = ""
-
-    with pymupdf.open(pdf_path) as pdf:
-        for page in pdf:
-            text += page.get_text() + "\n"
-
-    return text.strip()
+    return pdf_to_text(Path(pdf_path))
 
 
 def create_okf_document(filename, metadata):
@@ -44,18 +40,12 @@ def create_okf_document(filename, metadata):
 
     text = extract_text(pdf_path)
 
-    okf_content = f"""---
-type: {metadata["type"]}
-title: {metadata["title"]}
-description: Company policy document for the {metadata["access_level"]} access tier.
-access_level: {metadata["access_level"]}
-source: {filename}
----
-
-# {metadata["title"]}
-
-{text}
-"""
+    frontmatter = yaml.safe_dump({
+        "type": metadata["type"], "title": metadata["title"],
+        "description": f"Company policy document for the {metadata['access_level']} access tier.",
+        "access_level": metadata["access_level"], "source": filename,
+    }, sort_keys=False, allow_unicode=True).strip()
+    okf_content = f"---\n{frontmatter}\n---\n\n# {metadata['title']}\n\n{text}\n"
 
     output_path = OKF_DIR / filename.replace(".pdf", ".md")
 
@@ -65,16 +55,14 @@ source: {filename}
     print(f"Created: {output_path}")
 
 
-# Create OKF directory
-OKF_DIR.mkdir(exist_ok=True)
+def main():
+    OKF_DIR.mkdir(parents=True, exist_ok=True)
+    for filename, metadata in DOCUMENTS.items():
+        if not (DOCUMENTS_DIR / filename).exists():
+            print(f"Missing: {filename}")
+            continue
+        create_okf_document(filename, metadata)
 
-# Convert PDFs
-for filename, metadata in DOCUMENTS.items():
 
-    pdf_path = DOCUMENTS_DIR / filename
-
-    if not pdf_path.exists():
-        print(f"Missing: {filename}")
-        continue
-
-    create_okf_document(filename, metadata)
+if __name__ == "__main__":
+    main()

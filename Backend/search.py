@@ -1,28 +1,36 @@
-from sentence_transformers import SentenceTransformer
-from qdrant_client import QdrantClient
-from dotenv import load_dotenv
+"""Authorized local search utility. A role must be selected explicitly."""
+
+import argparse
 import os
+from pathlib import Path
 
-load_dotenv()
+from dotenv import load_dotenv
+from qdrant_client import QdrantClient
 
-qdrant = QdrantClient(
-    url=os.getenv("QDRANT_URL"),
-    api_key=os.getenv("QDRANT_API_KEY")
-)
+from access_policy import TOP_K, ROLES
+from document_pipeline import filter_authorized_results, retrieve_authorized
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+BACKEND_DIR = Path(__file__).resolve().parent
 
-question = "How many days of leave do employees get?"
 
-query_vector = model.encode(question).tolist()
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("question", nargs="?", default="How many days of leave do employees get?")
+    parser.add_argument("--role", required=True, choices=sorted(ROLES),
+        help="authorization role of the operator running this local utility")
+    args = parser.parse_args()
+    load_dotenv(BACKEND_DIR / ".env")
+    url, key = os.getenv("QDRANT_URL"), os.getenv("QDRANT_API_KEY")
+    if not url or not key:
+        parser.error("Set QDRANT_URL and QDRANT_API_KEY in Backend/.env")
+    qdrant = QdrantClient(url=url, api_key=key)
+    from sentence_transformers import SentenceTransformer
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    results = retrieve_authorized(args.question, role=args.role, qdrant=qdrant, model=model, limit=TOP_K)
+    for result in filter_authorized_results(results, args.role):
+        payload = result.payload
+        print(f"SCORE: {result.score}\nTEXT: {payload['text']}\n--------------------")
 
-results = qdrant.query_points(
-    collection_name="company_documents",
-    query=query_vector,
-    limit=TOP_K
-).points
 
-for result in results:
-    print("SCORE:", result.score)
-    print("TEXT:", result.payload["text"])
-    print("--------------------")
+if __name__ == "__main__":
+    main()
