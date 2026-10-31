@@ -20,3 +20,13 @@ def can_upload_to_level(role: str, access_level: str) -> bool:
     intern from assigning a privileged tier.
     """
     return role in ROLE_LEVELS and access_level in ROLE_LEVELS and ROLE_LEVELS[access_level] <= ROLE_LEVELS[role]
+
+
+def authorized_qdrant_filter(role: str):
+    """Fail closed: only known role tiers and fully searchable points are visible."""
+    from qdrant_client.models import FieldCondition, Filter, MatchAny, MatchValue
+
+    return Filter(must=[
+        FieldCondition(key="access_level", match=MatchAny(any=allowed_access_levels(role))),
+        FieldCondition(key="ingestion_status", match=MatchValue(value="searchable")),
+    ])

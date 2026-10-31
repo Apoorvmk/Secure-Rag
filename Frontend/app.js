@@ -8,6 +8,7 @@
     board: "All four roles",
   };
   const views = ["home", "login", "chat", "bunker"];
+  const apiBaseUrl = (window.SECURERAG_API_BASE_URL || "").replace(/\/+$/, "");
   const state = { token: sessionStorage.getItem("northstar_token"), user: null, toastTimer: null };
   const $ = (selector) => document.querySelector(selector);
 
@@ -29,7 +30,7 @@
   }
 
   async function api(path, options = {}) {
-    const response = await fetch(path, { ...options, headers: authHeaders(options.headers || {}) });
+    const response = await fetch(`${apiBaseUrl}${path}`, { ...options, headers: authHeaders(options.headers || {}) });
     const type = response.headers.get("content-type") || "";
     const body = type.includes("application/json") ? await response.json() : null;
     if (response.status === 401 && state.token) signOut(false);
@@ -115,24 +116,40 @@
     }
   });
 
-  function appendMessage(text, who) {
+ function appendMessage(text, who) {
     const wrap = document.createElement("div");
+
     if (who === "user") {
-      wrap.className = "user-message";
-      wrap.textContent = text;
+        wrap.className = "user-message";
+        wrap.textContent = text;
     } else {
-      wrap.className = "assistant-message";
-      const meta = document.createElement("div");
-      meta.className = "message-meta";
-      meta.textContent = "SCOUT";
-      const paragraph = document.createElement("p");
-      paragraph.textContent = text;
-      wrap.append(meta, paragraph);
+        wrap.className = "assistant-message";
+
+        const meta = document.createElement("div");
+        meta.className = "message-meta";
+        meta.textContent = "SCOUT";
+
+        const content = document.createElement("div");
+        content.className = "assistant-content";
+
+        // Restore escaped Markdown characters
+        const markdown = String(text)
+            .replace(/\\([|*_])/g, "$1")
+            .replace(/\\<br\s*\/?>/gi, "\n");
+
+        // Convert Markdown into safe HTML
+        content.innerHTML = DOMPurify.sanitize(
+            marked.parse(markdown, { gfm: true })
+        );
+
+        wrap.append(meta, content);
     }
+
     $("#messages").append(wrap);
     $("#messages").scrollTop = $("#messages").scrollHeight;
+
     return wrap;
-  }
+}
 
   async function sendQuestion(question) {
     const trimmed = question.trim();
@@ -153,7 +170,7 @@
         body: JSON.stringify({ message: trimmed }),
       });
       pending.remove();
-      appendMessage(result.response || "I couldn't find a clear answer in the documents available to your role.", "assistant");
+      appendAnswer(result);
     } catch (error) {
       pending.remove();
       appendMessage(error.message, "assistant");
@@ -162,6 +179,23 @@
       $(".send-button").disabled = false;
       $("#chat-input").focus();
     }
+  }
+
+  function appendAnswer(result) {
+    const wrap = appendMessage(result.response || "I couldn't find a clear answer in the documents available to your role.", "assistant");
+    const sources = Array.isArray(result.sources) ? result.sources.slice(0, 8) : [];
+    if (!sources.length) return;
+    const block = document.createElement("div");
+    block.className = "answer-sources";
+    const heading = document.createElement("span");
+    heading.textContent = "SOURCES";
+    block.append(heading);
+    sources.forEach((source) => {
+      const item = document.createElement("span");
+      item.textContent = `${source.citation || ""} ${source.title || "Company document"} · ${source.source || ""}`;
+      block.append(item);
+    });
+    wrap.append(block);
   }
 
   $("#chat-form").addEventListener("submit", (event) => {
@@ -248,7 +282,11 @@
 
   async function openDocument(item) {
     try {
-      const response = await fetch(`/bunker/files/${encodeURIComponent(item.document_id)}`, { headers: authHeaders() });
+      const response = await fetch(`${apiBaseUrl}/bunker/files/${encodeURIComponent(item.document_id)}`, { headers: authHeaders() });
+      if (response.status === 401) {
+        signOut(false);
+        throw new Error("Your session expired. Please log in again.");
+      }
       if (!response.ok) throw new Error("This document is not available to your role.");
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);

@@ -6,7 +6,7 @@ from pathlib import Path
 import yaml
 from qdrant_client.models import FieldCondition, Filter, MatchValue, PointStruct
 
-from access_policy import ROLES
+from access_policy import ROLES, authorized_qdrant_filter
 
 COLLECTION_NAME = "company_documents"
 CHUNK_SIZE = 500
@@ -98,6 +98,9 @@ def ingest_markdown(markdown: str, *, qdrant, model) -> int:
     indexed_value = document_id if has_document_id else str(metadata.get("source", ""))
     condition = Filter(must=[FieldCondition(key=indexed_by, match=MatchValue(value=indexed_value))])
     try:
+        # Bust query caches before any existing stable-ID chunks become processing.
+        from retrieval_cache import invalidate_retrieval_cache
+        invalidate_retrieval_cache()
         qdrant.upsert(collection_name=COLLECTION_NAME, points=points, wait=True)
         # Remove obsolete chunks after the replacement chunks are confirmed.
         new_id_set = set(point_ids)
@@ -124,20 +127,9 @@ def ingest_markdown(markdown: str, *, qdrant, model) -> int:
 
 
 def retrieve_authorized(question: str, *, role: str, qdrant, model, limit: int):
-    from qdrant_client.models import (FieldCondition, Filter, IsEmptyCondition, MatchAny,
-                                      MatchValue, PayloadField)
-    from access_policy import allowed_access_levels
-
-    levels = allowed_access_levels(role)
     vector = model.encode(question).tolist()
     return qdrant.query_points(collection_name=COLLECTION_NAME, query=vector,
-        query_filter=Filter(must=[
-            FieldCondition(key="access_level", match=MatchAny(any=levels)),
-            Filter(should=[
-                FieldCondition(key="ingestion_status", match=MatchValue(value="searchable")),
-                IsEmptyCondition(is_empty=PayloadField(key="ingestion_status")),
-            ]),
-        ]),
+        query_filter=authorized_qdrant_filter(role),
         limit=limit).points
 
 
@@ -149,4 +141,5 @@ def filter_authorized_results(results, role: str):
         if isinstance(getattr(point, "payload", None), dict)
         and isinstance(point.payload.get("access_level"), str)
         and point.payload["access_level"] in permitted
+        and point.payload.get("ingestion_status") == "searchable"
         and isinstance(point.payload.get("text"), str)]

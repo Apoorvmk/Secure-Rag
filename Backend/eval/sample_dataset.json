@@ -1,0 +1,14 @@
+{
+  "description": "Synthetic public example corpus for local retrieval evaluation; contains no company data.",
+  "corpus": [
+    {"id": "leave-intern", "access_level": "intern", "text": "Interns accrue paid leave at the rate stated in their internship agreement. Requests go to the team supervisor."},
+    {"id": "leave-employee", "access_level": "employee", "text": "Full-time employees receive 20 paid leave days each calendar year. Submit requests in the HR portal."},
+    {"id": "expenses-manager", "access_level": "manager", "text": "Managers approve department travel expenses within the quarterly budget."},
+    {"id": "board-plan", "access_level": "board", "text": "The board reviews the annual company strategy and operating plan."}
+  ],
+  "queries": [
+    {"question": "How many paid leave days do employees get?", "role": "employee", "relevant_ids": ["leave-employee"], "reference_answer": "Full-time employees receive 20 paid leave days each calendar year."},
+    {"question": "Who approves department travel expenses?", "role": "manager", "relevant_ids": ["expenses-manager"], "reference_answer": "Managers approve department travel expenses."},
+    {"question": "What does the annual strategy cover?", "role": "intern", "relevant_ids": [], "reference_answer": "The board reviews the annual company strategy and operating plan."}
+  ]
+}

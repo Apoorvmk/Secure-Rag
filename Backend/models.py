@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Text, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Text, DateTime, false
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
 
@@ -15,7 +15,7 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     department = Column(String)
     role = Column(String, nullable=False)
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=False, server_default=false(), nullable=False)
 
     conversations = relationship("Conversation", back_populates="user")
 

@@ -1,0 +1,10 @@
+apiVersion: 1
+providers:
+  - name: SecureRAG
+    orgId: 1
+    folder: SecureRAG
+    type: file
+    disableDeletion: true
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

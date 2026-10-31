@@ -1,5 +1,9 @@
 venv/
+.venv/
+.env
+!.env.example
 Backend/.env
 Backend/uploads/
 **/__pycache__/
+**/.pytest_cache/
 *.py[cod]
